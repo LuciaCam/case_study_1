@@ -51,6 +51,8 @@ library(ggplot2)
 panels <- fread("Case_Stud_ I.csv")
 ```
 
+### q1
+
 ```{r}
 ggplot(panels, aes(x = number_of_solar_panels, y = manufacturing_cost)) +
   geom_point() +

@@ -50,6 +50,10 @@ library(ggplot2)
 
 ```{r}
 panels <- fread("Case_Stud_ I.csv")
+
+# This dataset contains the following columns:
+# Number of Solar Panels
+# Manufacturing Costs
 ```
 
 # PART I
@@ -59,6 +63,8 @@ panels <- fread("Case_Stud_ I.csv")
 ```{r}
 ggplot(panels, aes(x = number_of_solar_panels, y = manufacturing_cost)) +
   geom_point() +
+  xlab("Number of Solar Panels Produced") +
+  ylab("Manufactoring Costs")+
   theme_light()
 ```
 ## Does the multiplicative learning model which assumes the following relationship: $Y = AX^b$ apply to this data set?

@@ -143,5 +143,6 @@ mean(panels_pred$lower[47:50])
 
 # CI upper bound of average manufacturing cost per solar panel for 4700, 4800, 4900 and 5000:
 mean(panels_pred$upper[47:50])
+
 ```
 

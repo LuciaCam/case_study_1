@@ -47,18 +47,23 @@ library(ggplot2)
 ```
 
 
+
 ```{r}
 panels <- fread("Case_Stud_ I.csv")
 ```
 
-### q1
+# PART I
+
+## Use an electronic spreadsheet to plot the data and draw a scatter plot.
 
 ```{r}
 ggplot(panels, aes(x = number_of_solar_panels, y = manufacturing_cost)) +
   geom_point() +
   theme_light()
 ```
+## Does the multiplicative learning model which assumes the following relationship: $Y = AX^b$ apply to this data set?
 
+## Make an appropriate transformation of the data and redo the plot with the transformed data.
 
 ```{r}
 panels_log = log(panels)
@@ -71,11 +76,16 @@ ggplot(panels_log, aes(x = number_of_solar_panels, y = manufacturing_cost)) +
   theme_light()
 ```
 
+# PART II
+
+## Conduct a linear regression with the transformed data.
+
 ```{r}
 LinReg = lm(manufacturing_cost ~ number_of_solar_panels, data = panels_log)
 summary(LinReg)
 ```
 
+## Interpret the results of the regression analysis. How well does the model explain the data? What is the learning rate that applies in this case?
 
 ```{r}
 beta = LinReg$coefficients
@@ -99,6 +109,10 @@ l = 1-b
 l
 ```
 
+# PART III
+
+## Use the experience curve estimate from the regression model to calculate the expected average manufacturing cost per solar panel for the 400 solar panels that would be produced.
+
 ```{r}
 panels_pred =  data.table(number_of_solar_panels = seq(100, 5000, 100))
 panels_pred[, manufacturing_cost := A*number_of_solar_panels^b]
@@ -110,6 +124,16 @@ ggplot(panels, aes(x = number_of_solar_panels, y = manufacturing_cost)) +
   geom_line(data = panels_pred, aes(x = number_of_solar_panels, y = manufacturing_cost), color = "red") +
   theme_light()
 ```
+
+```{r}
+# average manufacturing cost per solar panel for 4700, 4800, 4900 and 5000:
+mean(panels_pred$manufacturing_cost[47:50])
+```
+
+# PART IV
+
+## Calculate a 95% confidence interval for the average manufacturing cost per solar panel for the panels produced for Switzerland by using the lower and upper bounds of the confidence interval estimate for the experience parameter.
+
 
 ```{r}
 CI = confint(LinReg)
@@ -128,6 +152,7 @@ panels_pred[, upper := A*number_of_solar_panels^b_upper]
 panels_pred[1:22, 3:4] = NA
 ```
 
+
 ```{r}
 ggplot(panels, aes(x = number_of_solar_panels, y = manufacturing_cost)) +
   geom_point() +
@@ -136,15 +161,12 @@ ggplot(panels, aes(x = number_of_solar_panels, y = manufacturing_cost)) +
   theme_light()
 ```
 
-```{r}
-# average manufacturing cost per solar panel for 4700, 4800, 4900 and 5000:
-mean(panels_pred$manufacturing_cost[47:50])
 
+```{r}
 # CI lower bound of average manufacturing cost per solar panel for 4700, 4800, 4900 and 5000:
 mean(panels_pred$lower[47:50])
 
 # CI upper bound of average manufacturing cost per solar panel for 4700, 4800, 4900 and 5000:
 mean(panels_pred$upper[47:50])
-
 ```
 

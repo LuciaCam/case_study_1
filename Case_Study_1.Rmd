@@ -1,0 +1,147 @@
+---
+title: "TP2 - Exercise 4"
+author: "Manuela Giansante and Lucia Camenisch"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output:
+  html_document:
+    toc: true # creating a table of contents (toc)
+    toc_float: 
+      collapsed: false # toc does not collapse and is shown as a sidebar (toc_float)
+    number_sections: true # document sections are numbered
+    theme: cosmo
+---
+
+```{=html}
+<style>
+body{
+  color: #630000;
+  background-color: #FBF1D2;
+}
+pre{
+  background-color: #FFF7ED;
+}
+pre:not([class]){
+  background-color: #EBE7AA;
+}
+.toc-content{
+  padding-left: 10px;
+  padding-right: 10px;
+}
+.col-sm-8 {
+  width: 75%;
+}
+code {
+  color: #333333;
+  background-color: #FFF7ED;
+}
+</style>
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.align = "center")
+```
+
+```{r}
+library(data.table)
+library(ggplot2)
+```
+
+
+```{r}
+panels <- fread("Case_Stud_ I.csv")
+```
+
+```{r}
+ggplot(panels, aes(x = number_of_solar_panels, y = manufacturing_cost)) +
+  geom_point() +
+  theme_light()
+```
+
+
+```{r}
+panels_log = log(panels)
+```
+
+
+```{r}
+ggplot(panels_log, aes(x = number_of_solar_panels, y = manufacturing_cost)) +
+  geom_point() +
+  theme_light()
+```
+
+```{r}
+LinReg = lm(manufacturing_cost ~ number_of_solar_panels, data = panels_log)
+summary(LinReg)
+```
+
+
+```{r}
+beta = LinReg$coefficients
+```
+
+```{r}
+ggplot(panels_log, aes(x = number_of_solar_panels, y = manufacturing_cost)) +
+  geom_point() +
+  geom_abline(intercept = beta[1], slope = beta[2], color = "red") +
+  theme_light()
+```
+
+```{r}
+A = as.numeric(exp(beta[1]))
+A
+b = as.numeric(beta[2])
+b
+# 1-b = l is the proportion reduction in the unit cost with each doubling
+# in the cumulative production (learning rate)
+l = 1-b
+l
+```
+
+```{r}
+panels_pred =  data.table(number_of_solar_panels = seq(100, 5000, 100))
+panels_pred[, manufacturing_cost := A*number_of_solar_panels^b]
+```
+
+```{r}
+ggplot(panels, aes(x = number_of_solar_panels, y = manufacturing_cost)) +
+  geom_point() +
+  geom_line(data = panels_pred, aes(x = number_of_solar_panels, y = manufacturing_cost), color = "red") +
+  theme_light()
+```
+
+```{r}
+CI = confint(LinReg)
+CI
+```
+
+
+```{r}
+b_lower = CI[2,1]
+b_upper = CI[2,2]
+```
+
+```{r}
+panels_pred[, lower := A*number_of_solar_panels^b_lower]
+panels_pred[, upper := A*number_of_solar_panels^b_upper]
+panels_pred[1:22, 3:4] = NA
+```
+
+```{r}
+ggplot(panels, aes(x = number_of_solar_panels, y = manufacturing_cost)) +
+  geom_point() +
+  geom_line(data = panels_pred, aes(x = number_of_solar_panels, y = manufacturing_cost), color = "red") +
+  geom_ribbon(data = panels_pred, aes(ymin = lower, ymax = upper), alpha = 0.3, color = NA, fill = "red") +
+  theme_light()
+```
+
+```{r}
+# average manufacturing cost per solar panel for 4700, 4800, 4900 and 5000:
+mean(panels_pred$manufacturing_cost[47:50])
+
+# CI lower bound of average manufacturing cost per solar panel for 4700, 4800, 4900 and 5000:
+mean(panels_pred$lower[47:50])
+
+# CI upper bound of average manufacturing cost per solar panel for 4700, 4800, 4900 and 5000:
+mean(panels_pred$upper[47:50])
+```
+

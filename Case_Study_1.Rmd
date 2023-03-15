@@ -194,7 +194,9 @@ In black we have the collected data.
 
 ```{r}
 # average manufacturing cost per solar panel for 4700, 4800, 4900 and 5000:
-batch_mean=mean(panels_pred$manufacturing_cost[47:50]) # mean of the batch of 100 
+mean(panels_pred$manufacturing_cost[47:50])
+# average unit cost for the collected data before the placement of the bid:
+mean(panels$manufacturing_cost)
 ```
 
 # PART IV
@@ -207,16 +209,17 @@ CI
 ```
 
 ```{r}
-b_lower = CI[2,1]
-b_upper = CI[2,2]
+b_lower = CI[2,1]# lower bounds
+b_upper = CI[2,2]# upper bounds
 b_lower
 b_upper
 ```
 
 ```{r}
+#Response recomputed with bounds values
 panels_pred[, lower := A*number_of_solar_panels^b_lower]
 panels_pred[, upper := A*number_of_solar_panels^b_upper]
-panels_pred[1:22, 3:4] = NA
+panels_pred[1:22, 3:4] = NA # collected data
 ```
 
 ```{r}
@@ -224,6 +227,9 @@ ggplot(panels, aes(x = number_of_solar_panels, y = manufacturing_cost)) +
   geom_point() +
   geom_line(data = panels_pred, aes(x = number_of_solar_panels, y = manufacturing_cost), color = "red") +
   geom_ribbon(data = panels_pred, aes(ymin = lower, ymax = upper), alpha = 0.3, color = NA, fill = "red") +
+   xlab("Number of Solar Panels Produced") +
+  ylab("Manufactoring Costs")+
+  ggtitle("Real Data and CI: Manufactoring Costs per Units Produced")+
   theme_light()
 ```
 
@@ -234,9 +240,9 @@ mean(panels_pred$lower[47:50])
 # CI upper bound of average manufacturing cost per solar panel for 4700, 4800, 4900 and 5000:
 mean(panels_pred$upper[47:50])
 ```
+In conclusion, yes by the time Heliotronics will start manufacturing the 400 panels for canton Tessin the costs per unit will already have decreased. The average unit cost for those 400 units is $688.8399.
+Compared to the initial average unit cost of $901.0591 that Heliotronics observed in the first quarter of 2022.
 
-## You should calculate two extra regression equations for both limits and then calculate the expected average manufacturing cost per solar panel for the 400 solar panels that would be produced for Switzerland as in exercise 3.
 
-```{r}
-batch_mean/100
-```
+
+

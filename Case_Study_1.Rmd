@@ -40,9 +40,12 @@ code {
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.align = "center")
 ```
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
+# We load the necessary libraries
 library(data.table)
 library(ggplot2)
+library(kableExtra)
+library(dplyr)
 ```
 
 ```{r}
@@ -62,22 +65,35 @@ ggplot(panels, aes(x = number_of_solar_panels, y = manufacturing_cost)) +
   geom_point() +
   xlab("Number of Solar Panels Produced") +
   ylab("Manufactoring Costs")+
+  ggtitle("Manufactoring Costs per Units Produced")+
   theme_light()
 ```
 
+We observe that as the amount of units produced cumulatively increases the costs of manufactoring per unit decline. The gained experience reduces the marginal costs with a constant rate, which is the learning rate.
+
 ## Does the multiplicative learning model which assumes the following relationship: $Y = AX^b$ apply to this data set?
+
+The data as plotted out above follows a parabolic shape, the suggested non linear relationship applies.
+
+The one above can be interpreted an experience curve, given that we are considering cumulative production and manufactoring cost per batch of 100 panels produced.
 
 ## Make an appropriate transformation of the data and redo the plot with the transformed data.
 
 ```{r}
 panels_log = log(panels)
+head(panels_log) %>% kbl() %>% kable_styling("hover", full_width = F)
 ```
 
 ```{r}
 ggplot(panels_log, aes(x = number_of_solar_panels, y = manufacturing_cost)) +
   geom_point() +
+  xlab("Log(Number of Solar Panels Produced)") +
+  ylab("Log(Manufactoring Costs)")+
+  ggtitle("Log-log Plot: Manufactoring Costs per Units Produced")+
   theme_light()
 ```
+
+By logging the data the relationship $Y=AX^{b}$ becomes $\log(Y)=\log(A)+b\log(X)$, that is now a linear relationship in fact the plotted data no longer follows a parabolic shape. In our case the response variable is the cost and the predictor is the number of produced panels.
 
 # PART II
 
@@ -86,11 +102,31 @@ ggplot(panels_log, aes(x = number_of_solar_panels, y = manufacturing_cost)) +
 ```{r}
 LinReg = lm(manufacturing_cost ~ number_of_solar_panels, data = panels_log)
 summary(LinReg)
+
 ```
+
+In the context of a linear regression the intercept estimate is the log(A) we mentioned above, and the coefficient of the `number_of_solar_panels` is the b constant preceading log(X).
+
+Both coefficients are significant and the Adjusted R\^2 is quite high, the model does a good job at explaining the variation in the data.
+
+```{r}
+plot(LinReg)
+```
+
+**Residuals vs Fitted Values plot**
+
+The residuals are scattered around the 0 line suggesting that the relationship between response and predictor is linear.
+
+There is an horizontal band around the 0 line, but the logarithm shifted the cloud of point to the left appearing therefore less uniform.
+
+**Q-Q plot**
+
+The residuals appear normally distributed and they hug the diagonal line without forming any curving shaping which would indicate a violation of the normal distribution and independence assumption regarding errors.
 
 ## Interpret the results of the regression analysis. How well does the model explain the data? What is the learning rate that applies in this case?
 
 ```{r}
+# as stated above
 beta = LinReg$coefficients
 beta
 ```
@@ -99,6 +135,9 @@ beta
 ggplot(panels_log, aes(x = number_of_solar_panels, y = manufacturing_cost)) +
   geom_point() +
   geom_abline(intercept = beta[1], slope = beta[2], color = "red") +
+  xlab("Log(Number of Solar Panels Produced)") +
+  ylab("Log(Manufactoring Costs)")+
+  ggtitle("Log-log Plot with Fitted Line: Manufactoring Costs per Units Produced")+
   theme_light()
 ```
 

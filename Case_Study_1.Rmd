@@ -153,11 +153,12 @@ b = as.numeric(beta[2])
 l = 1-exp(log(2)*b)
 ```
 
-We refer the article [Experience curve effects - Wikipedia](https://en.wikipedia.org/wiki/Experience_curve_effects) and the Wright's law unit cost curve. The $\tilde{b}$ is the progress ratio which as mentioned in class is 2\^b (slide 10).
+Given the provided function $Y=AX^b$ our progress ratio is $2^b$, with A as the starting unit cost.
+"Each duplication of the accumulated output of a product in a certain period of time decreases the inflation-adjusted marginal cost with a constant percentage, the learning rate".
 
-$\begin{aligned}\log_2{\tilde{b}}&=b\\\frac{\log(\tilde{b})}{\log(2)}&=b\\e^{\log(\tilde{b})}&=e^{\log(2)*b}\\\tilde{b}&=e^{\log(2)*b}\\$
-
-$1-\tilde{b}&=1-e^{\log(2)*b}\\1-\tilde{b}&=learning\end{aligned}$
+Doubling X: $\tilde{Y}=A*(2X)^b$ where $\tilde{Y}< Y$
+We can write the proportion of the two as $\frac{\tilde{Y}}{Y}=\frac{A(2X)^b}{AX^b}=2^b$ which is the progress ratio.
+The learning rate is defined as 1-progress ratio, $1-\frac{\tilde{Y}}{Y}=1-2^b$.
 
 ```{r}
 df<- data.frame(A,b,l)
@@ -168,19 +169,28 @@ df%>% kbl() %>% kable_styling("hover", full_width = F)
 
 ## Use the experience curve estimate from the regression model to calculate the expected average manufacturing cost per solar panel for the 400 solar panels that would be produced.
 
+We generate the data for the new produced batches up to 5000 units.
+
 ```{r}
-# new data
+# Data Generation
 panels_pred =  data.table(number_of_solar_panels = seq(100, 5000, 100))
-panels_pred[, manufacturing_cost := A*number_of_solar_panels^b]
+panels_pred[, manufacturing_cost := A*number_of_solar_panels^b]# computation of response variable
 
 ```
 
 ```{r}
 ggplot(panels, aes(x = number_of_solar_panels, y = manufacturing_cost)) +
   geom_point() +
+  geom_point(data=panels_pred[c(47:50),], color="blue")+
   geom_line(data = panels_pred, aes(x = number_of_solar_panels, y = manufacturing_cost), color = "red") +
+  xlab("Number of Solar Panels Produced") +
+  ylab("Manufactoring Costs")+
+  ggtitle("Real Data and predicted Data: Manufactoring Costs per Units Produced")+
   theme_light()
 ```
+
+The red line plots the predicted values for the all the produced batches, in blue the 400 panels of interest.
+In black we have the collected data.
 
 ```{r}
 # average manufacturing cost per solar panel for 4700, 4800, 4900 and 5000:

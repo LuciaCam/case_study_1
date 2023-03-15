@@ -36,7 +36,6 @@ code {
 }
 </style>
 ```
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.align = "center")
 ```
@@ -45,8 +44,6 @@ knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.align =
 library(data.table)
 library(ggplot2)
 ```
-
-
 
 ```{r}
 panels <- fread("Case_Stud_ I.csv")
@@ -67,6 +64,7 @@ ggplot(panels, aes(x = number_of_solar_panels, y = manufacturing_cost)) +
   ylab("Manufactoring Costs")+
   theme_light()
 ```
+
 ## Does the multiplicative learning model which assumes the following relationship: $Y = AX^b$ apply to this data set?
 
 ## Make an appropriate transformation of the data and redo the plot with the transformed data.
@@ -74,7 +72,6 @@ ggplot(panels, aes(x = number_of_solar_panels, y = manufacturing_cost)) +
 ```{r}
 panels_log = log(panels)
 ```
-
 
 ```{r}
 ggplot(panels_log, aes(x = number_of_solar_panels, y = manufacturing_cost)) +
@@ -95,6 +92,7 @@ summary(LinReg)
 
 ```{r}
 beta = LinReg$coefficients
+beta
 ```
 
 ```{r}
@@ -109,19 +107,22 @@ A = as.numeric(exp(beta[1]))
 A
 b = as.numeric(beta[2])
 b
-# 1-b = l is the proportion reduction in the unit cost with each doubling
-# in the cumulative production (learning rate)
-l = 1-b
+# as defined the learning rate is 1-2^b
+l = 1-exp(log(2)*b)
 l
 ```
+
+$\begin{aligned}\log_2{\tilde{b}}&=b\\\frac{\log(\tilde{b})}{\log(2)}&=b\\e^{\log(\tilde{b})}&=e^{\log(2)*b}\\\tilde{b}&=e^{\log(2)*b}\\1-\tilde{b}&=1-e^{\log(2)*b}\\1-\tilde{b}&=2^b\end{aligned}$
 
 # PART III
 
 ## Use the experience curve estimate from the regression model to calculate the expected average manufacturing cost per solar panel for the 400 solar panels that would be produced.
 
 ```{r}
+# new data
 panels_pred =  data.table(number_of_solar_panels = seq(100, 5000, 100))
 panels_pred[, manufacturing_cost := A*number_of_solar_panels^b]
+
 ```
 
 ```{r}
@@ -133,23 +134,23 @@ ggplot(panels, aes(x = number_of_solar_panels, y = manufacturing_cost)) +
 
 ```{r}
 # average manufacturing cost per solar panel for 4700, 4800, 4900 and 5000:
-mean(panels_pred$manufacturing_cost[47:50])
+batch_mean=mean(panels_pred$manufacturing_cost[47:50]) # mean of the batch of 100 
 ```
 
 # PART IV
 
 ## Calculate a 95% confidence interval for the average manufacturing cost per solar panel for the panels produced for Switzerland by using the lower and upper bounds of the confidence interval estimate for the experience parameter.
 
-
 ```{r}
 CI = confint(LinReg)
 CI
 ```
 
-
 ```{r}
 b_lower = CI[2,1]
 b_upper = CI[2,2]
+b_lower
+b_upper
 ```
 
 ```{r}
@@ -157,7 +158,6 @@ panels_pred[, lower := A*number_of_solar_panels^b_lower]
 panels_pred[, upper := A*number_of_solar_panels^b_upper]
 panels_pred[1:22, 3:4] = NA
 ```
-
 
 ```{r}
 ggplot(panels, aes(x = number_of_solar_panels, y = manufacturing_cost)) +
@@ -167,7 +167,6 @@ ggplot(panels, aes(x = number_of_solar_panels, y = manufacturing_cost)) +
   theme_light()
 ```
 
-
 ```{r}
 # CI lower bound of average manufacturing cost per solar panel for 4700, 4800, 4900 and 5000:
 mean(panels_pred$lower[47:50])
@@ -176,3 +175,8 @@ mean(panels_pred$lower[47:50])
 mean(panels_pred$upper[47:50])
 ```
 
+## You should calculate two extra regression equations for both limits and then calculate the expected average manufacturing cost per solar panel for the 400 solar panels that would be produced for Switzerland as in exercise 3.
+
+```{r}
+batch_mean/100
+```

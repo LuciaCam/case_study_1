@@ -126,9 +126,9 @@ The residuals appear normally distributed and they hug the diagonal line without
 ## Interpret the results of the regression analysis. How well does the model explain the data? What is the learning rate that applies in this case?
 
 ```{r}
-# as stated above
+# retrieving the coefficients as computed
 beta = LinReg$coefficients
-beta
+beta %>% kbl(col.names = "Coefficients") %>% kable_styling("hover", full_width = F)
 ```
 
 ```{r}
@@ -141,17 +141,28 @@ ggplot(panels_log, aes(x = number_of_solar_panels, y = manufacturing_cost)) +
   theme_light()
 ```
 
+As previously seen the Adjusted R\^2 indicated that the fitted model explains 94% of the variations in the manufactoring costs. The fit of the model is satisfying.
+
+We exponentiate the coefficient back to their original form.
+
 ```{r}
+# Re-trasforming the coefficients
 A = as.numeric(exp(beta[1]))
-A
 b = as.numeric(beta[2])
-b
 # as defined the learning rate is 1-2^b
 l = 1-exp(log(2)*b)
-l
 ```
 
-$\begin{aligned}\log_2{\tilde{b}}&=b\\\frac{\log(\tilde{b})}{\log(2)}&=b\\e^{\log(\tilde{b})}&=e^{\log(2)*b}\\\tilde{b}&=e^{\log(2)*b}\\1-\tilde{b}&=1-e^{\log(2)*b}\\1-\tilde{b}&=2^b\end{aligned}$
+We refer the article [Experience curve effects - Wikipedia](https://en.wikipedia.org/wiki/Experience_curve_effects) and the Wright's law unit cost curve. The $\tilde{b}$ is the progress ratio which as mentioned in class is 2\^b (slide 10).
+
+$\begin{aligned}\log_2{\tilde{b}}&=b\\\frac{\log(\tilde{b})}{\log(2)}&=b\\e^{\log(\tilde{b})}&=e^{\log(2)*b}\\\tilde{b}&=e^{\log(2)*b}\\$
+
+$1-\tilde{b}&=1-e^{\log(2)*b}\\1-\tilde{b}&=learning\end{aligned}$
+
+```{r}
+df<- data.frame(A,b,l)
+df%>% kbl() %>% kable_styling("hover", full_width = F)
+```
 
 # PART III
 

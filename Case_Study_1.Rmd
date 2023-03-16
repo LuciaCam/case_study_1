@@ -69,13 +69,14 @@ ggplot(panels, aes(x = number_of_solar_panels, y = manufacturing_cost)) +
   theme_light()
 ```
 
-We observe that as the amount of units produced cumulatively increases the costs of manufacturing per unit decline. The gained experience reduces the marginal costs with a constant rate, which is the learning rate.
+We observe that as the amount of units produced cumulatively increases the costs of manufacturing per unit decline. The gained experience reduces the marginal costs with a constant rate (generating efficiency gains), which is the learning rate.
 
 ## Does the multiplicative learning model which assumes the following relationship: $Y = AX^b$ apply to this data set?
 
 The data as plotted out above follows an exponential shape, the suggested non linear relationship applies.
 
-The plot above can be interpreted as an experience curve, given that we are considering cumulative production and manufacturing cost per batch of 100 panels produced.
+The plot above can be interpreted as an experience curve, given that we are considering the interralation between cumulative production and manufacturing cost per unit within batches of 100 panels produced.
+
 
 ## Make an appropriate transformation of the data and redo the plot with the transformed data.
 
@@ -93,7 +94,7 @@ ggplot(panels_log, aes(x = number_of_solar_panels, y = manufacturing_cost)) +
   theme_light()
 ```
 
-By logging the data the relationship $Y=AX^{b}$ becomes $\log(Y)=\log(A)+b\log(X)$, that is now a linear relationship in fact the plotted data no longer follows an exponential shape. In our case the response variable is the cost and the predictor is the number of produced panels.
+By logging the data the relationship $Y=AX^{b}$ becomes $\log(Y)=\log(A)+b\log(X)$, that is now a linear relationship in fact the plotted data no longer follows an exponential shape. In our case the response variable is log of the unit costs and the predictor is the log of the number of produced panels.
 
 # PART II
 
@@ -105,7 +106,7 @@ summary(LinReg)
 
 ```
 
-In the context of a linear regression the intercept estimate $\beta_0$ is the $\log(A)$ we mentioned above, and the coefficient of the `number_of_solar_panels` $\beta_1$ is the $b$ constant preceading $\log(X)$.
+In the context of a linear regression the intercept estimate $\beta_0$ is the $\log(A)$ we mentioned above, and the coefficient of the `number_of_solar_panels` $\beta_1$ is the $b$ constant preceding $\log(X)$.
 
 Both coefficients are significant and the adjusted $R^2$ is quite high, the model does a good job at explaining the variation in the data.
 

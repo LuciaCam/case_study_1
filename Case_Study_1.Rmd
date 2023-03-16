@@ -234,21 +234,27 @@ mean(panels_pred$manufacturing_cost[47:50])
 mean(panels$manufacturing_cost)
 ```
 
+The mean of the unit costs for the existing orders, which is too large of a cost for the company to make a competitive bid for the canton Tessin project.
+
 # PART IV
 
 ## Calculate a 95% confidence interval for the average manufacturing cost per solar panel for the panels produced for Switzerland by using the lower and upper bounds of the confidence interval estimate for the experience parameter.
 
 ```{r}
+# Confidence Interval
 CI = confint(LinReg)
 CI
 ```
 
+The confidence interval for $\beta_1$:
 ```{r}
 b_lower = CI[2,1]# lower bounds
 b_upper = CI[2,2]# upper bounds
 b_lower
 b_upper
 ```
+
+Corresponding response variable:
 
 ```{r}
 #Response recomputed with bounds values

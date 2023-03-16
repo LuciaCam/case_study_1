@@ -69,13 +69,13 @@ ggplot(panels, aes(x = number_of_solar_panels, y = manufacturing_cost)) +
   theme_light()
 ```
 
-We observe that as the amount of units produced cumulatively increases the costs of manufactoring per unit decline. The gained experience reduces the marginal costs with a constant rate, which is the learning rate.
+We observe that as the amount of units produced cumulatively increases the costs of manufacturing per unit decline. The gained experience reduces the marginal costs with a constant rate, which is the learning rate.
 
 ## Does the multiplicative learning model which assumes the following relationship: $Y = AX^b$ apply to this data set?
 
-The data as plotted out above follows a parabolic shape, the suggested non linear relationship applies.
+The data as plotted out above follows an exponential shape, the suggested non linear relationship applies.
 
-The one above can be interpreted an experience curve, given that we are considering cumulative production and manufactoring cost per batch of 100 panels produced.
+The plot above can be interpreted as an experience curve, given that we are considering cumulative production and manufacturing cost per batch of 100 panels produced.
 
 ## Make an appropriate transformation of the data and redo the plot with the transformed data.
 
@@ -93,7 +93,7 @@ ggplot(panels_log, aes(x = number_of_solar_panels, y = manufacturing_cost)) +
   theme_light()
 ```
 
-By logging the data the relationship $Y=AX^{b}$ becomes $\log(Y)=\log(A)+b\log(X)$, that is now a linear relationship in fact the plotted data no longer follows a parabolic shape. In our case the response variable is the cost and the predictor is the number of produced panels.
+By logging the data the relationship $Y=AX^{b}$ becomes $\log(Y)=\log(A)+b\log(X)$, that is now a linear relationship in fact the plotted data no longer follows an exponential shape. In our case the response variable is the cost and the predictor is the number of produced panels.
 
 # PART II
 
@@ -105,9 +105,9 @@ summary(LinReg)
 
 ```
 
-In the context of a linear regression the intercept estimate is the log(A) we mentioned above, and the coefficient of the `number_of_solar_panels` is the b constant preceading log(X).
+In the context of a linear regression the intercept estimate $\beta_0$ is the $\log(A)$ we mentioned above, and the coefficient of the `number_of_solar_panels` $\beta_1$ is the $b$ constant preceading $\log(X)$.
 
-Both coefficients are significant and the Adjusted R\^2 is quite high, the model does a good job at explaining the variation in the data.
+Both coefficients are significant and the adjusted $R^2$ is quite high, the model does a good job at explaining the variation in the data.
 
 ```{r}
 plot(LinReg)
@@ -141,24 +141,58 @@ ggplot(panels_log, aes(x = number_of_solar_panels, y = manufacturing_cost)) +
   theme_light()
 ```
 
-As previously seen the Adjusted R\^2 indicated that the fitted model explains 94% of the variations in the manufactoring costs. The fit of the model is satisfying.
+As previously seen the adjusted $R^2$ indicated that the fitted model explains 94% of the variations in the manufacturing costs. The fit of the model is satisfying.
 
-We exponentiate the coefficient back to their original form.
+
+We retrieve coefficients $A$ and $b$ from the linear regression coefficients as we mentioned before.
+$$
+\begin{align}
+A & = \log(\beta_0) \\
+b &= \beta_1
+\end{align}
+$$
+
 
 ```{r}
-# Re-trasforming the coefficients
+# Retrieving the coefficients
 A = as.numeric(exp(beta[1]))
 b = as.numeric(beta[2])
-# as defined the learning rate is 1-2^b
-l = 1-exp(log(2)*b)
 ```
 
-Given the provided function $Y=AX^b$ our progress ratio is $2^b$, with A as the starting unit cost.
-"Each duplication of the accumulated output of a product in a certain period of time decreases the inflation-adjusted marginal cost with a constant percentage, the learning rate".
 
-Doubling X: $\tilde{Y}=A*(2X)^b$ where $\tilde{Y}< Y$
-We can write the proportion of the two as $\frac{\tilde{Y}}{Y}=\frac{A(2X)^b}{AX^b}=2^b$ which is the progress ratio.
-The learning rate is defined as 1-progress ratio, $1-\frac{\tilde{Y}}{Y}=1-2^b$.
+The learning rate is defined as follows:
+
+"Each duplication of the *accumulated output of a product* ($X$) in a certain period of time decreases the *inflation-adjusted marginal cost* ($Y$) with a constant percentage, the *learning rate* ($l$)."
+
+Translating this expression in a mathematical equation, we can thus retrieve a formula for the learning rate $l$. It is equal to
+$$l = 1 - \dfrac{\tilde Y}{Y}$$
+where $Y$ is the cost for an accumulated output $X$ and $\tilde Y$ is the cost for double that output, i.e. $2X$.
+
+Using our model's function:
+
+$$
+\begin{align}
+Y &= A X^b \\ 
+\tilde Y &= A (2X)^b
+\end{align}
+$$
+Thus,
+
+$$
+\begin{align}
+l &= 1 - \dfrac{\tilde Y}{Y} \\ 
+&= 1 - \dfrac{A (2X)^b}{A X^b} \\
+&= 1 - 2^b
+\end{align}
+$$
+
+
+```{r}
+# as defined the learning rate is 1-2^b
+l = 1-2^b
+```
+
+
 
 ```{r}
 df<- data.frame(A,b,l)

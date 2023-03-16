@@ -162,9 +162,9 @@ b = as.numeric(beta[2])
 
 The learning rate is defined as follows:
 
-"Each duplication of the *accumulated output of a product* ($X$) in a certain period of time decreases the *inflation-adjusted marginal cost* ($Y$) with a constant percentage, the *learning rate* ($l$)."
+"Each duplication of the **accumulated output of a product** ($X$) in a certain period of time decreases the **inflation-adjusted marginal cost** ($Y$) with a constant percentage, the **learning rate** ($l$)."
 
-Translating this expression in a mathematical equation, we can thus retrieve a formula for the learning rate $l$. It is equal to
+Translating this expression into a mathematical equation, we can thus retrieve a formula for the learning rate $l$. It is equal to
 $$l = 1 - \dfrac{\tilde Y}{Y}$$
 where $Y$ is the cost for an accumulated output $X$ and $\tilde Y$ is the cost for double that output, i.e. $2X$.
 
@@ -274,8 +274,8 @@ mean(panels_pred$lower[47:50])
 # CI upper bound of average manufacturing cost per solar panel for 4700, 4800, 4900 and 5000:
 mean(panels_pred$upper[47:50])
 ```
-In conclusion, yes by the time Heliotronics will start manufacturing the 400 panels for canton Tessin the costs per unit will already have decreased. The average unit cost for those 400 units is $688.8399.
-Compared to the initial average unit cost of $901.0591 that Heliotronics observed in the first quarter of 2022.
+In conclusion, yes by the time Heliotronics will start manufacturing the 400 panels for canton Tessin the costs per unit will already have decreased. The average unit cost for those 400 units is $688.84.
+Compared to the initial average unit cost of $901.06 that Heliotronics observed in the first quarter of 2022.
 
 
 

@@ -274,6 +274,8 @@ ggplot(panels, aes(x = number_of_solar_panels, y = manufacturing_cost)) +
   theme_light()
 ```
 
+
+
 ```{r}
 # CI lower bound of average manufacturing cost per solar panel for 4700, 4800, 4900 and 5000:
 mean(panels_pred$lower[47:50])

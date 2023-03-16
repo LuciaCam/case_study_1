@@ -268,7 +268,8 @@ ggplot(panels, aes(x = number_of_solar_panels, y = manufacturing_cost)) +
   geom_point() +
   geom_line(data = panels_pred, aes(x = number_of_solar_panels, y = manufacturing_cost), color = "red") +
   geom_ribbon(data = panels_pred, aes(ymin = lower, ymax = upper), alpha = 0.3, color = NA, fill = "red") +
-   xlab("Number of Solar Panels Produced") +
+  geom_vline(xintercept =  2300, linetype = "dashed") +
+  xlab("Number of Solar Panels Produced") +
   ylab("Manufactoring Costs")+
   ggtitle("Real Data and CI: Manufactoring Costs per Units Produced")+
   theme_light()

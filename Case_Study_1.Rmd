@@ -14,14 +14,14 @@ output:
 ```{=html}
 <style>
 body{
-  color: #630000;
-  background-color: #FBF1D2;
+  color: #000000;
+  background-color: #BAD0FF;
 }
 pre{
-  background-color: #FFF7ED;
+  background-color: #EEE8A9;
 }
 pre:not([class]){
-  background-color: #EBE7AA;
+  background-color: #99ADEC;
 }
 .toc-content{
   padding-left: 10px;
@@ -32,7 +32,7 @@ pre:not([class]){
 }
 code {
   color: #333333;
-  background-color: #FFF7ED;
+  background-color: #EEE8A9;
 }
 </style>
 ```

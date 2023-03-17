@@ -1,5 +1,5 @@
 ---
-title: "TP2 - Exercise 4"
+title: "Case Study I - Heliotronics"
 author: "Manuela Giansante and Lucia Camenisch"
 date: "`r format(Sys.time(), '%d %B %Y')`"
 output:
@@ -50,7 +50,7 @@ library(dplyr)
 
 ```{r}
 panels <- fread("Case_Stud_ I.csv")
-
+head(panels) %>% kbl() %>% kable_styling("hover", full_width = F)
 # This dataset contains the following columns:
 # Number of Solar Panels
 # Manufacturing Costs
@@ -63,27 +63,32 @@ panels <- fread("Case_Stud_ I.csv")
 ```{r}
 ggplot(panels, aes(x = number_of_solar_panels, y = manufacturing_cost)) +
   geom_point() +
-  xlab("Number of Solar Panels Produced") +
-  ylab("Manufactoring Costs")+
-  ggtitle("Manufactoring Costs per Units Produced")+
+  xlab("Cumulative Number of Solar Panels Produced") +
+  ylab("Manufactoring Costs") +
+  ggtitle("Manufactoring Costs per Units Produced") +
   theme_light()
 ```
 
-We observe that as the amount of units produced cumulatively increases the costs of manufacturing per unit decline. The gained experience reduces the marginal costs with a constant rate (generating efficiency gains), which is the learning rate.
+We observe that as the amount of units cumulatively produced increases, the cost of manufacturing per unit declines. The gained experience reduces the marginal costs with a constant rate (generating efficiency gains), which is the learning rate.
 
 ## Does the multiplicative learning model which assumes the following relationship: $Y = AX^b$ apply to this data set?
 
-The data as plotted out above follows an exponential shape, the suggested non linear relationship applies.
+The data as plotted out above follows an exponential shape with a negative exponent, thus the suggested non-linear relationship applies.
 
-The plot above can be interpreted as an experience curve, given that we are considering the interralation between cumulative production and manufacturing cost per unit within batches of 100 panels produced.
+The plot above can be interpreted as an experience curve, given that we are considering the evolving relationship between cumulative production and manufacturing cost per unit within batches of 100 panels produced.
 
 
 ## Make an appropriate transformation of the data and redo the plot with the transformed data.
 
+We take the natural logarithm of both columns `number_of_solar_panels` and `manufacturing_cost` in our table. This transformation has for effect to linearize the relationship between both variables.
+
 ```{r}
 panels_log = log(panels)
+# showing first six values of the table
 head(panels_log) %>% kbl() %>% kable_styling("hover", full_width = F)
 ```
+
+We plot our transformed data.
 
 ```{r}
 ggplot(panels_log, aes(x = number_of_solar_panels, y = manufacturing_cost)) +
@@ -94,7 +99,7 @@ ggplot(panels_log, aes(x = number_of_solar_panels, y = manufacturing_cost)) +
   theme_light()
 ```
 
-By logging the data the relationship $Y=AX^{b}$ becomes $\log(Y)=\log(A)+b\log(X)$, that is now a linear relationship in fact the plotted data no longer follows an exponential shape. In our case the response variable is log of the unit costs and the predictor is the log of the number of produced panels.
+By taking the logarithm, the relationship $Y=AX^{b}$ becomes $\log(Y)=\log(A)+b\log(X)$, this is now indeed a linear relationship. In fact, the plotted data no longer follows an exponential shape. In our case the response variable is the logarithm of the unit costs and the predictor is the logarithm of the number of produced panels.
 
 # PART II
 
@@ -108,29 +113,54 @@ summary(LinReg)
 
 In the context of a linear regression the intercept estimate $\beta_0$ is the $\log(A)$ we mentioned above, and the coefficient of the `number_of_solar_panels` $\beta_1$ is the $b$ constant preceding $\log(X)$.
 
-Both coefficients are significant and the adjusted $R^2$ is quite high, the model does a good job at explaining the variation in the data.
+Both coefficients are significant and the adjusted $R^2$ is quite high, which means that the model does a good job at explaining the variation in the data.
 
-```{r}
-plot(LinReg)
-```
+We will briefly examine our residuals by displaying a Residuals vs Fitted Values Plot and a Normal Q-Q Plot.
+
 
 **Residuals vs Fitted Values plot**
 
-The residuals are scattered around the 0 line suggesting that the relationship between response and predictor is linear.
+```{r}
+ggplot(mapping = aes(x = LinReg$fitted.values, y = LinReg$residuals)) +
+  geom_point() +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  theme_light() +
+  labs(x = "Fitted Values",
+       y = "Residuals",
+       title = "Residuals vs Fitted Values Plot")
+```
 
-There is an horizontal band around the 0 line, but the logarithm shifted the cloud of point to the left appearing therefore less uniform.
+The residuals are scattered around the 0 line suggesting that the relationship between response and predictor is linear. There is roughly the same amount of negative and positive residuals.
+
+The residuals have no structure except for their position being mainly on the left. This is explained by the fact that we have a decreasing exponential. Only the first observations have high values, and as the exponential decreases very rapidly before becoming flatter, as times goes on $Y$ values will get closer to zero. Thus, the cloud of residuals is shifted to the left.
 
 **Q-Q plot**
 
+```{r}
+res_standardized = (LinReg$residuals - mean(LinReg$residuals))/sd(LinReg$residuals)
+ggplot(mapping = aes(sample = res_standardized)) +
+  stat_qq() +
+  stat_qq_line(color="red") +
+  theme_light() +
+  labs(x = "Theoretical Quantiles",
+       y = "Standardized Residuals",
+       title = "Normal Q-Q Plot of Residuals")
+```
+
 The residuals appear normally distributed and they hug the diagonal line without forming any curving shaping which would indicate a violation of the normal distribution and independence assumption regarding errors.
 
+
 ## Interpret the results of the regression analysis. How well does the model explain the data? What is the learning rate that applies in this case?
+
+We retrieve the coefficients estimated by the linear regression in order to plot our regression line and compare it with respect to our data points.
 
 ```{r}
 # retrieving the coefficients as computed
 beta = LinReg$coefficients
 beta %>% kbl(col.names = "Coefficients") %>% kable_styling("hover", full_width = F)
 ```
+
+We can now plot our regression line.
 
 ```{r}
 ggplot(panels_log, aes(x = number_of_solar_panels, y = manufacturing_cost)) +
@@ -142,10 +172,10 @@ ggplot(panels_log, aes(x = number_of_solar_panels, y = manufacturing_cost)) +
   theme_light()
 ```
 
-As previously seen the adjusted $R^2$ indicated that the fitted model explains 94% of the variations in the manufacturing costs. The fit of the model is satisfying.
-
+As previously seen the adjusted $R^2$ indicates that the fitted model explains 94% of the variation in the manufacturing costs. The fit of the model is very satisfying. This can also be seen in the above plot, as the regression line looks close to our data points and is well centered.
 
 We retrieve coefficients $A$ and $b$ from the linear regression coefficients as we mentioned before.
+
 $$
 \begin{align}
 A & = \log(\beta_0) \\
@@ -187,13 +217,14 @@ l &= 1 - \dfrac{\tilde Y}{Y} \\
 \end{align}
 $$
 
+Since we now have the value of $b$, we can compute the learning rate.
 
 ```{r}
-# as defined the learning rate is 1-2^b
+# the learning rate is 1-2^b
 l = 1-2^b
 ```
 
-
+Our model's parameters are:
 
 ```{r}
 df<- data.frame(A,b,l)
@@ -204,28 +235,36 @@ df%>% kbl() %>% kable_styling("hover", full_width = F)
 
 ## Use the experience curve estimate from the regression model to calculate the expected average manufacturing cost per solar panel for the 400 solar panels that would be produced.
 
-We generate the data for the new produced batches up to 5000 units.
+We will now predict the cost of each batch of 100 panels from 100 to 5000 units. To do so, we generate a new data table with the cumulative number or solar panels, and then compute the corresponding cost predictions using our model's formula
+$$Y = AX^b$$
+with coefficients $A$ and $b$ having the values computed in Part II.
 
 ```{r}
-# Data Generation
+# Generating a sequence of number of solar panels from 100 to 5000 with increments of 100
+# these are the values of X
 panels_pred =  data.table(number_of_solar_panels = seq(100, 5000, 100))
-panels_pred[, manufacturing_cost := A*number_of_solar_panels^b]# computation of response variable
-
+# computing the predicted values Y (manufacturing cost) using the formula Y = A*X^b
+panels_pred[, manufacturing_cost := A*number_of_solar_panels^b]
 ```
+
+We can plot our original data and draw the exponential curve we have predicted using our new table.
 
 ```{r}
 ggplot(panels, aes(x = number_of_solar_panels, y = manufacturing_cost)) +
   geom_point() +
-  geom_point(data=panels_pred[c(47:50),], color="blue")+
-  geom_line(data = panels_pred, aes(x = number_of_solar_panels, y = manufacturing_cost), color = "red") +
+  geom_line(data = panels_pred,
+            aes(x = number_of_solar_panels, y = manufacturing_cost),
+            color = "red") +
+  geom_point(data=panels_pred[c(47:50),], color="blue") +
   xlab("Number of Solar Panels Produced") +
   ylab("Manufactoring Costs")+
   ggtitle("Real Data and predicted Data: Manufactoring Costs per Units Produced")+
   theme_light()
 ```
 
-The red line plots the predicted values for the all the produced batches, in blue the 400 panels of interest.
-In black we have the collected data.
+The red line plots the predicted values for the all the produced batches. We highlight in blue the 400 panels of interest, corresponding to the cumulative sums of 4700, 4800, 4900 and 5000 units.
+
+The mean cost of the last 400 panels will then be the average of the values of these last four blue dots.
 
 ```{r}
 # average manufacturing cost per solar panel for 4700, 4800, 4900 and 5000:
@@ -234,12 +273,14 @@ mean(panels_pred$manufacturing_cost[47:50])
 mean(panels$manufacturing_cost)
 ```
 
-The mean of the unit costs for the existing orders, which is too large of a cost for the company to make a competitive bid for the canton Tessin project.
+The mean cost per panel of the last 400 panels (\$688.84) is considerably lower than the mean cost of panels produced when the data was collected (\$901.06). This means that Mr Handleman could make a competitive bid by taking into consideration the fact that the production cost of panels will have decreased when he will have to produce them, and use this to his advantage.
+
 
 # PART IV
 
 ## Calculate a 95% confidence interval for the average manufacturing cost per solar panel for the panels produced for Switzerland by using the lower and upper bounds of the confidence interval estimate for the experience parameter.
 
+We can compute confidence intervals for both coefficients of the linear regression, which gives us the possibility to determine a confidence interval for $b = \beta_1$.
 ```{r}
 # Confidence Interval
 CI = confint(LinReg)
@@ -254,27 +295,48 @@ b_lower
 b_upper
 ```
 
-Corresponding response variable:
+In other words, $b \in [-0.17, -0.14]$ with a 95% probability.
+
+We can add two columns to our table of prices predictions, using the upper and lower bounds $b_u$, $b_l$ for the confidence interval of $b$ in our model's formula:
+$$
+\begin{align}
+Y &= AX^{b_u} \\
+Y &= AX^{b_l}
+\end{align}
+$$
+
 
 ```{r}
 #Response recomputed with bounds values
 panels_pred[, lower := A*number_of_solar_panels^b_lower]
 panels_pred[, upper := A*number_of_solar_panels^b_upper]
-panels_pred[1:22, 3:4] = NA # collected data
+# in order to not plot the confidence interval where we have real collected data,
+# we replace the estimated values in bound columns by NA values
+panels_pred[1:22, 3:4] = NA
 ```
+
+We can now plot our confidence interval.
 
 ```{r}
 ggplot(panels, aes(x = number_of_solar_panels, y = manufacturing_cost)) +
   geom_point() +
-  geom_line(data = panels_pred, aes(x = number_of_solar_panels, y = manufacturing_cost), color = "red") +
-  geom_ribbon(data = panels_pred, aes(ymin = lower, ymax = upper), alpha = 0.3, color = NA, fill = "red") +
+  geom_line(data = panels_pred,
+            aes(x = number_of_solar_panels, y = manufacturing_cost),
+            color = "red") +
+  geom_ribbon(data = panels_pred,
+              aes(ymin = lower, ymax = upper),
+              alpha = 0.3,
+              color = NA,
+              fill = "red") +
   geom_vline(xintercept =  2300, linetype = "dashed") +
+  geom_point(data=panels_pred[c(47:50),], color="blue") +
   xlab("Number of Solar Panels Produced") +
   ylab("Manufactoring Costs")+
   ggtitle("Real Data and CI: Manufactoring Costs per Units Produced")+
   theme_light()
 ```
 
+As we did to get the mean cost for the last 400 panels, we can compute the lower and upper bounds of the confidence interval for the last 400 panels by taking the average of the lower and upper bounds associated with the four blue dots.
 
 
 ```{r}
@@ -284,8 +346,7 @@ mean(panels_pred$lower[47:50])
 # CI upper bound of average manufacturing cost per solar panel for 4700, 4800, 4900 and 5000:
 mean(panels_pred$upper[47:50])
 ```
-In conclusion, yes by the time Heliotronics will start manufacturing the 400 panels for canton Tessin the costs per unit will already have decreased. The average unit cost for those 400 units is $688.84.
-Compared to the initial average unit cost of $901.06 that Heliotronics observed in the first quarter of 2022.
+In conclusion, yes by the time Heliotronics will start manufacturing the 400 panels for canton Tessin the costs per unit will already have decreased. The average unit cost for those 400 units will be $688.84, and the unit cost will be between \$598.55 and \$792.74 with a 95% probability. Compared to the initial average unit cost of \$901.06 that Heliotronics observed in the first quarter of 2022, this price range is definitely lower.
 
 
 
